@@ -11,7 +11,7 @@ func TestHandleHealth(t *testing.T) {
 	mux := http.NewServeMux()
 	Register(mux)
 
-	req := httptest.NewRequest(http.MethodGet, "/healthz", nil)
+	req := httptest.NewRequest(http.MethodGet, "/healthz", http.NoBody)
 	rec := httptest.NewRecorder()
 
 	mux.ServeHTTP(rec, req)

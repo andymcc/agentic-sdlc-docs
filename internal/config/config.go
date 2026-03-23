@@ -5,11 +5,13 @@ import (
 	"os"
 )
 
+// Config holds application configuration loaded from environment variables.
 type Config struct {
 	Port     string
 	LogLevel slog.Level
 }
 
+// Load reads configuration from environment variables with sensible defaults.
 func Load() Config {
 	port := os.Getenv("PORT")
 	if port == "" {
