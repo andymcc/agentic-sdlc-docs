@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Format check
+        run: |
+          gofmt -l . | tee /dev/stderr | (! read)
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+
+      - name: Test
+        run: go test ./... -race -coverprofile=coverage.out -covermode=atomic
+
+      - name: Coverage gate
+        run: |
+          COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+          echo "Total coverage: ${COVERAGE}%"
+          if (( $(echo "$COVERAGE < 75" | bc -l) )); then
+            echo "Coverage ${COVERAGE}% is below 75% threshold"
+            exit 1
+          fi
+
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Docs sync check
+        run: ./scripts/docs-check.sh
+
+      - name: Build
+        run: go build -v ./cmd/server
+
+  agent-review:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    needs: check
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Placeholder for agent-based PR review.
+      # Replace with your preferred AI review tool (e.g., Claude, Codex, CodeRabbit).
+      - name: Agent review placeholder
+        run: echo "Agent review step - configure your AI review tool here"

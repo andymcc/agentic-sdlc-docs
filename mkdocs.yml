@@ -1,0 +1,15 @@
+site_name: Agentic SDLC App
+site_description: User documentation for the agentic SDLC application.
+
+docs_dir: docs/user
+
+nav:
+  - Getting Started: getting-started.md
+  - API Reference: api-reference.md
+
+theme:
+  name: material
+
+markdown_extensions:
+  - tables
+  - fenced_code
